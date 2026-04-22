@@ -2,12 +2,20 @@
 // Handles business logic for orders
 // Uses new schema with person_id and delivery system
 
-const pool = require('../config/database');
+const pool = require('../../config/database');
 
 // Create order from cart
 async function createOrder(req, res) {
+    let connection;
     try {
-        const { personId, shippingAddressId } = req.body;
+        const personId = req.body.personId || req.body.person_id;
+        const shippingAddressId = req.body.shippingAddressId || req.body.shipping_add_id || null;
+        const paymentMethod = (req.body.paymentMethod || req.body.payment_method || 'cash').toLowerCase();
+        const paymentStatus = req.body.paymentStatus || req.body.payment_status || 'pending';
+        const transactionId = req.body.transactionId || req.body.transaction_id || null;
+        const paymentGateway = req.body.paymentGateway || req.body.payment_gateway || null;
+        const cardHolder = req.body.cardHolder || req.body.card_holder || null;
+        const cardNumber = req.body.cardNumber || req.body.card_number || null;
         
         if (!personId) {
             return res.status(400).json({
@@ -15,14 +23,15 @@ async function createOrder(req, res) {
                 message: 'Person ID required'
             });
         }
-        
-        const connection = await pool.getConnection();
+
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
         
         // Get cart
         const [cart] = await connection.query('SELECT cart_id FROM cart WHERE person_id = ?', [personId]);
         
         if (cart.length === 0 || !cart[0].cart_id) {
-            connection.release();
+            await connection.rollback();
             return res.status(404).json({
                 success: false,
                 message: 'Cart not found'
@@ -38,7 +47,7 @@ async function createOrder(req, res) {
         `, [cart[0].cart_id]);
         
         if (cartItems.length === 0) {
-            connection.release();
+            await connection.rollback();
             return res.status(400).json({
                 success: false,
                 message: 'Cart is empty'
@@ -73,20 +82,54 @@ async function createOrder(req, res) {
         
         // Clear cart
         await connection.query('DELETE FROM cart_item WHERE cart_id = ?', [cart[0].cart_id]);
-        
-        connection.release();
+
+        // Create payment according to selected method
+        const [paymentResult] = await connection.query(
+            'INSERT INTO payment (order_id, status, amount) VALUES (?, ?, ?)',
+            [orderId, paymentStatus, totalAmount]
+        );
+
+        const paymentId = paymentResult.insertId;
+        if (paymentMethod === 'online') {
+            await connection.query(
+                'INSERT INTO online_payment (payment_id, transaction_id, payment_gateway) VALUES (?, ?, ?)',
+                [paymentId, transactionId, paymentGateway]
+            );
+        } else if (paymentMethod === 'card') {
+            await connection.query(
+                'INSERT INTO card_payment (payment_id, card_holder, card_number) VALUES (?, ?, ?)',
+                [paymentId, cardHolder, cardNumber]
+            );
+        } else {
+            await connection.query(
+                'INSERT INTO cash_payment (payment_id) VALUES (?)',
+                [paymentId]
+            );
+        }
+
+        await connection.commit();
         
         res.status(201).json({
             success: true,
             message: 'Order created successfully',
             orderId: orderId,
-            totalAmount: totalAmount
+            totalAmount: totalAmount,
+            payment: {
+                paymentId,
+                method: paymentMethod,
+                status: paymentStatus
+            }
         });
     } catch (error) {
+        if (connection) {
+            await connection.rollback().catch(() => {});
+        }
         res.status(500).json({
             success: false,
             error: error.message
         });
+    } finally {
+        if (connection) connection.release();
     }
 }
 

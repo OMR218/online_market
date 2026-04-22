@@ -1,582 +1,987 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce Store</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PatataMarket</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
+    :root {
+      --primary: #F59E0B;
+      /* Warm Amber / Patata color */
+      --primary-hover: #D97706;
+      --secondary: #10B981;
+      --bg-color: #F8FAFC;
+      --card-bg: rgba(255, 255, 255, 0.7);
+      --text-dark: #0F172A;
+      --text-light: #64748B;
+      --border: rgba(226, 232, 240, 0.8);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.3);
+      --radius-lg: 1.25rem;
+      --radius-md: 0.75rem;
+    }
 
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        header h1 {
-            font-size: 1.5rem;
-        }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      background-attachment: fixed;
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
 
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-        }
+    header {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1.25rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
 
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s;
-        }
+    header h2 {
+      background: linear-gradient(to right, #F59E0B, #EA580C);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
 
-        button:hover {
-            background-color: #2980b9;
-        }
+    .nav {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      background: white;
+      padding: 0.35rem;
+      border-radius: 99px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
+    button {
+      font-family: 'Outfit', sans-serif;
+      border: none;
+      border-radius: 99px;
+      padding: 0.6rem 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .products-section {
-            display: none;
-        }
+    .btn-nav {
+      background: transparent;
+      color: var(--text-light);
+    }
 
-        .products-section.active {
-            display: block;
-        }
+    .btn-nav:hover {
+      color: var(--text-dark);
+      background: rgba(0, 0, 0, 0.03);
+    }
 
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+    .btn-nav.active {
+      background: var(--text-dark);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
 
-        .product-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #EA580C);
+      color: white;
+      width: 100%;
+      padding: 0.75rem;
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-md);
+    }
 
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+    .btn-primary:hover {
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-2px);
+    }
 
-        .product-info {
-            padding: 1.5rem;
-        }
+    .btn-secondary {
+      background: var(--text-dark);
+      color: white;
+      border-radius: var(--radius-md);
+    }
 
-        .product-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
+    .btn-secondary:hover {
+      background: #000;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
 
-        .product-price {
-            color: #e74c3c;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
+    .btn-secondary:disabled {
+      background: #94A3B8;
+      transform: none;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
 
-        .product-stock {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-bottom: 1rem;
-        }
+    .btn-danger {
+      background: #EF4444;
+      color: white;
+      border-radius: var(--radius-md);
+    }
 
-        .product-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+    .btn-danger:hover {
+      background: #DC2626;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      transform: translateY(-2px);
+    }
 
-        .product-actions input {
-            width: 60px;
-            padding: 0.5rem;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-        }
+    #authContainer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+      padding: 2rem;
+    }
 
-        .product-actions button {
-            flex: 1;
-            background-color: #27ae60;
-        }
+    .auth-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      padding: 3rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 420px;
+    }
 
-        .product-actions button:hover {
-            background-color: #229954;
-        }
+    .auth-card h3 {
+      margin-bottom: 2rem;
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
 
-        .cart-section {
-            display: none;
-        }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
 
-        .cart-section.active {
-            display: block;
-        }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
 
-        .cart-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.8);
+      transition: all 0.3s;
+      font-size: 1rem;
+    }
 
-        .cart-table th {
-            background-color: #34495e;
-            color: white;
-            padding: 1rem;
-            text-align: left;
-        }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+      background: white;
+    }
 
-        .cart-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #ecf0f1;
-        }
+    .switch-auth {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      cursor: pointer;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
 
-        .cart-table tr:hover {
-            background-color: #f9f9f9;
-        }
+    .switch-auth:hover {
+      color: var(--primary);
+    }
 
-        .remove-btn {
-            background-color: #e74c3c;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.8rem;
-        }
+    #appContainer {
+      display: none;
+      max-width: 1280px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
 
-        .remove-btn:hover {
-            background-color: #c0392b;
-        }
+    .section {
+      display: none;
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-        .cart-summary {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-align: right;
-        }
+    .section.active {
+      display: block;
+    }
 
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
 
-        .summary-total {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #e74c3c;
-            border-top: 2px solid #ecf0f1;
-            padding-top: 1rem;
-            margin-bottom: 1.5rem;
-        }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        .checkout-btn {
-            background-color: #27ae60;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            width: 100%;
-        }
+    .categories {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
 
-        .checkout-btn:hover {
-            background-color: #229954;
-        }
+    .cat-btn {
+      padding: 0.6rem 1.5rem;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 1rem;
+    }
 
-        .empty-message {
-            text-align: center;
-            padding: 3rem;
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
+    .cat-btn:hover {
+      background: white;
+      color: var(--text-dark);
+      transform: translateY(-1px);
+    }
 
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            border: 1px solid #c3e6cb;
-        }
+    .cat-btn.active {
+      background: var(--text-dark);
+      color: white;
+      border-color: var(--text-dark);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
 
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            border: 1px solid #f5c6cb;
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
 
-        .orders-section {
-            display: none;
-        }
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-        .orders-section.active {
-            display: block;
-        }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(255, 255, 255, 1);
+    }
 
-        .order-card {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-        }
+    .card-img {
+      height: 220px;
+      background: #F1F5F9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      overflow: hidden;
+    }
 
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #ecf0f1;
-        }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
 
-        .order-id {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
+    .card:hover .card-img img {
+      transform: scale(1.05);
+    }
 
-        .order-status {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-weight: bold;
-            color: white;
-        }
+    .card-body {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .status-pending {
-            background-color: #f39c12;
-        }
+    .card-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+    }
 
-        .status-completed {
-            background-color: #27ae60;
-        }
+    .card-desc {
+      color: var(--text-light);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      flex: 1;
+      line-height: 1.5;
+    }
 
-        .status-cancelled {
-            background-color: #e74c3c;
-        }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      margin-bottom: 1rem;
+    }
 
-        .order-detail {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
+    .price {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.5rem;
+    }
 
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #7f8c8d;
-        }
-    </style>
+    .qty-input {
+      width: 70px;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .qty-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: rgba(248, 250, 252, 0.8);
+      color: var(--text-light);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-light);
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--border);
+      font-size: 1.1rem;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--text-dark);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 99px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transform: translateY(150px) scale(0.9);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 1000;
+    }
+
+    #toast.show {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  </style>
 </head>
+
 <body>
-    <header>
-        <h1>🛍️ E-Commerce Store</h1>
-        <div class="nav-buttons">
-            <button onclick="showSection('products')">📦 Products</button>
-            <button onclick="showSection('cart')">🛒 Cart (<span id="cartCount">0</span>)</button>
-            <button onclick="showSection('orders')">📋 Orders</button>
-        </div>
-    </header>
 
-    <div class="container">
-        <!-- Products Section -->
-        <div id="products" class="products-section active">
-            <h2>Available Products</h2>
-            <div id="productsContainer" class="products-grid">
-                <div class="loading">Loading products...</div>
-            </div>
-        </div>
+  <header id="mainHeader" style="display:none;">
+    <h2>PatataMarket</h2>
+    <div class="nav">
+      <button class="btn-nav active" onclick="showSection('products')" id="nav-products">Products</button>
+      <button class="btn-nav" onclick="showSection('add-product')" id="nav-add-product">Add Product</button>
+      <button class="btn-nav" onclick="showSection('cart')" id="nav-cart">Cart (<span id="cartCount">0</span>)</button>
+      <button class="btn-nav" onclick="showSection('orders')" id="nav-orders">Orders</button>
+      <button class="btn-nav" style="color:#EF4444;" onclick="logout()">Logout</button>
+    </div>
+  </header>
 
-        <!-- Cart Section -->
-        <div id="cart" class="cart-section">
-            <h2>Shopping Cart</h2>
-            <div id="cartMessage"></div>
-            <table id="cartTable" class="cart-table" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Subtotal</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="cartItems"></tbody>
-            </table>
-            <div id="cartSummary" class="cart-summary" style="display: none;">
-                <div class="summary-row">
-                    <span>Items:</span>
-                    <span id="itemCount">0</span>
-                </div>
-                <div class="summary-total">
-                    Total: $<span id="cartTotal">0.00</span>
-                </div>
-                <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
-            </div>
-        </div>
-
-        <!-- Orders Section -->
-        <div id="orders" class="orders-section">
-            <h2>My Orders</h2>
-            <div id="ordersContainer">
-                <div class="loading">Loading orders...</div>
-            </div>
-        </div>
+  <!-- Auth Forms -->
+  <div id="authContainer">
+    <div class="auth-card" id="loginCard">
+      <h3>Welcome Back</h3>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="test@example.com"
+          value="ahmed@example.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" class="form-control" placeholder="Password" value="hashed_password_1">
+      </div>
+      <button class="btn-primary" onclick="login()">Login</button>
+      <div class="switch-auth" onclick="toggleAuth()">Need an account? Register</div>
     </div>
 
-    <script>
-        const API_BASE = 'http://localhost:3000/api';
-        let currentPersonId = 1; // Demo customer person ID
-        let cartData = { items: [], total: 0 };
+    <div class="auth-card" id="registerCard" style="display:none;">
+      <h3>Create Account</h3>
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="regFirstName" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="regLastName" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" class="form-control">
+      </div>
+      <button class="btn-primary" onclick="register()">Register</button>
+      <div class="switch-auth" onclick="toggleAuth()">Already have an account? Login</div>
+    </div>
+  </div>
 
-        // Show different sections
-        function showSection(section) {
-            document.querySelectorAll('.products-section, .cart-section, .orders-section').forEach(el => {
-                el.classList.remove('active');
-            });
-            document.getElementById(section).classList.add('active');
+  <!-- App -->
+  <div id="appContainer">
 
-            if (section === 'cart') {
-                loadCart();
-            } else if (section === 'orders') {
-                loadOrders();
-            }
-        }
+    <section id="products" class="section active">
+      <div class="categories">
+        <button class="cat-btn active" onclick="filterCategory('all', this)">All</button>
+        <button class="cat-btn" onclick="filterCategory('electronics', this)">Electronics</button>
+        <button class="cat-btn" onclick="filterCategory('food', this)">Food</button>
+        <button class="cat-btn" onclick="filterCategory('clothing', this)">Clothing</button>
+      </div>
+      <div id="productsGrid" class="grid"></div>
+    </section>
 
-        // Load products
-        async function loadProducts() {
-            try {
-                const response = await fetch(`${API_BASE}/products`);
-                const data = await response.json();
+    <section id="add-product" class="section">
+      <div class="auth-card" style="margin: 0 auto; max-width: 600px;">
+        <h3>Add New Product</h3>
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" id="addName" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="addDesc" class="form-control">
+        </div>
+        <div style="display:flex; gap:1rem;">
+          <div class="form-group" style="flex:1;">
+            <label>Price ($)</label>
+            <input type="number" step="0.01" id="addPrice" class="form-control">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label>Stock Quantity</label>
+            <input type="number" id="addStock" class="form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="addType" class="form-control">
+            <option value="general">General</option>
+            <option value="electronics">Electronics</option>
+            <option value="food">Food</option>
+            <option value="clothing">Clothing</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Image URL (Optional)</label>
+          <input type="text" id="addImage" class="form-control" placeholder="https://example.com/image.jpg">
+        </div>
+        <button class="btn-primary" onclick="addProduct()">Create Product</button>
+      </div>
+    </section>
 
-                const container = document.getElementById('productsContainer');
-                
-                if (data.success && data.data.length > 0) {
-                    container.innerHTML = data.data.map(product => `
-                        <div class="product-card">
-                            <div class="product-info">
-                                <div class="product-name">${product.name}</div>
-                                <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
-                                <div class="product-stock">Stock: ${product.stock_quantity}</div>
-                                <div class="product-actions">
-                                    <input type="number" id="qty-${product.product_id}" value="1" min="1">
-                                    <button onclick="addToCart(${product.product_id})">Add to Cart</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<div class="empty-message">No products available</div>';
-                }
-            } catch (error) {
-                console.error('Error loading products:', error);
-                document.getElementById('productsContainer').innerHTML = 
-                    '<div class="error-message">Error loading products</div>';
-            }
-        }
+    <section id="cart" class="section">
+      <div id="cartView"></div>
+    </section>
 
-        // Add to cart
-        async function addToCart(productId) {
-            const quantity = parseInt(document.getElementById(`qty-${productId}`).value) || 1;
+    <section id="orders" class="section">
+      <div id="ordersView"></div>
+    </section>
 
-            try {
-                const response = await fetch(`${API_BASE}/cart/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        personId: currentPersonId,
-                        productId: productId,
-                        quantity: quantity
-                    })
-                });
+  </div>
 
-                const data = await response.json();
+  <div id="editModal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; justify-content:center; align-items:center;">
+    <div class="auth-card" style="margin: 0 auto; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <h3>Edit Product</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group"><label>Product Name</label><input type="text" id="editName" class="form-control"></div>
+      <div class="form-group"><label>Description</label><input type="text" id="editDesc" class="form-control"></div>
+      <div style="display:flex; gap:1rem;">
+        <div class="form-group" style="flex:1;"><label>Price ($)</label><input type="number" step="0.01" id="editPrice"
+            class="form-control"></div>
+        <div class="form-group" style="flex:1;"><label>Stock Quantity</label><input type="number" id="editStock"
+            class="form-control"></div>
+      </div>
+      <div class="form-group"><label>Category</label><select id="editType" class="form-control">
+          <option value="general">General</option>
+          <option value="electronics">Electronics</option>
+          <option value="food">Food</option>
+          <option value="clothing">Clothing</option>
+        </select></div>
+      <div class="form-group"><label>Image URL</label><input type="text" id="editImage" class="form-control"></div>
+      <div style="display:flex; gap:1rem; margin-top: 1rem;">
+        <button class="btn-primary" style="flex:1;" onclick="saveEdit()">Save Changes</button>
+        <button class="btn-secondary" style="flex:1; background:#6b7280;" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-                if (data.success) {
-                    alert('✅ Item added to cart!');
-                    loadCart();
-                    updateCartCount();
-                } else {
-                    alert('❌ Error adding item');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error adding to cart');
-            }
-        }
+  <div id="toast"></div>
 
-        // Load cart
-        async function loadCart() {
-            try {
-                const response = await fetch(`${API_BASE}/cart/${currentPersonId}`);
-                const data = await response.json();
+  <script>
+    let API = 'http://localhost:3000/api';
+    let currentPersonId = localStorage.getItem('personId');
+    let allProducts = [];
 
-                const cartTable = document.getElementById('cartTable');
-                const cartItems = document.getElementById('cartItems');
-                const cartSummary = document.getElementById('cartSummary');
-                const cartMessage = document.getElementById('cartMessage');
+    // Utils
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
 
-                if (data.success && data.data.items.length > 0) {
-                    cartData = data.data;
-                    cartTable.style.display = 'table';
-                    cartSummary.style.display = 'block';
-                    cartMessage.innerHTML = '';
+    async function probeApi() {
+      for (let p = 3000; p <= 3010; p++) {
+        try {
+          const r = await fetch(`http://localhost:${p}/api/health`);
+          if (r.ok) return `http://localhost:${p}/api`;
+        } catch (_) { }
+      }
+      return API;
+    }
 
-                    cartItems.innerHTML = data.data.items.map(item => `
-                        <tr>
-                            <td>${item.name}</td>
-                            <td>$${parseFloat(item.price).toFixed(2)}</td>
-                            <td>${item.quantity}</td>
-                            <td>$${parseFloat(item.subtotal).toFixed(2)}</td>
-                            <td><button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button></td>
-                        </tr>
-                    `).join('');
+    // Auth
+    function toggleAuth() {
+      const l = document.getElementById('loginCard');
+      const r = document.getElementById('registerCard');
+      if (l.style.display === 'none') { l.style.display = 'block'; r.style.display = 'none'; }
+      else { l.style.display = 'none'; r.style.display = 'block'; }
+    }
 
-                    document.getElementById('itemCount').textContent = data.data.items.length;
-                    document.getElementById('cartTotal').textContent = parseFloat(data.data.total).toFixed(2);
-                } else {
-                    cartTable.style.display = 'none';
-                    cartSummary.style.display = 'none';
-                    cartMessage.innerHTML = '<div class="empty-message">Your cart is empty</div>';
-                }
-            } catch (error) {
-                console.error('Error loading cart:', error);
-            }
-        }
+    function checkAuth() {
+      if (currentPersonId) {
+        document.getElementById('authContainer').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'block';
+        loadApp();
+      } else {
+        document.getElementById('authContainer').style.display = 'flex';
+        document.getElementById('mainHeader').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'none';
+      }
+    }
 
-        // Remove from cart
-        async function removeFromCart(itemId) {
-            try {
-                const response = await fetch(`${API_BASE}/cart/item/${itemId}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    loadCart();
-                    updateCartCount();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Checkout
-        async function checkout() {
-            if (cartData.items.length === 0) {
-                alert('❌ Cart is empty');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/orders`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ personId: currentPersonId })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    alert(`✅ Order created successfully!\nOrder ID: ${data.orderId}\nTotal: $${parseFloat(data.totalAmount).toFixed(2)}`);
-                    loadCart();
-                    loadOrders();
-                    updateCartCount();
-                    showSection('orders');
-                } else {
-                    alert(`❌ Error: ${data.message}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error creating order');
-            }
-        }
-
-        // Load orders
-        async function loadOrders() {
-            try {
-                const response = await fetch(`${API_BASE}/orders/${currentPersonId}`);
-                const data = await response.json();
-
-                const container = document.getElementById('ordersContainer');
-
-                if (data.success && data.data.length > 0) {
-                    container.innerHTML = data.data.map(order => {
-                        const statusClass = `status-${order.status}`;
-                        return `
-                            <div class="order-card">
-                                <div class="order-header">
-                                    <div class="order-id">Order #${order.order_id}</div>
-                                    <div class="order-status ${statusClass}">${order.status.toUpperCase()}</div>
-                                </div>
-                                <div class="order-detail">
-                                    <span>Total Amount:</span>
-                                    <span>$${parseFloat(order.total_amount).toFixed(2)}</span>
-                                </div>
-                                <div class="order-detail">
-                                    <span>Date:</span>
-                                    <span>${new Date(order.created_at).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    container.innerHTML = '<div class="empty-message">No orders yet</div>';
-                }
-            } catch (error) {
-                console.error('Error loading orders:', error);
-                document.getElementById('ordersContainer').innerHTML = 
-                    '<div class="error-message">Error loading orders</div>';
-            }
-        }
-
-        // Update cart count
-        async function updateCartCount() {
-            try {
-                const response = await fetch(`${API_BASE}/cart/${currentPersonId}`);
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('cartCount').textContent = data.data.items.length;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Initialize
-        window.addEventListener('load', () => {
-            loadProducts();
-            updateCartCount();
+    async function login() {
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPassword').value;
+      try {
+        const res = await fetch(`${API}/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
         });
-    </script>
+        const data = await res.json();
+        if (data.success) {
+          currentPersonId = data.personId;
+          localStorage.setItem('personId', currentPersonId);
+          checkAuth();
+          showToast('Logged in successfully');
+        } else {
+          showToast(data.message || 'Login failed');
+        }
+      } catch (e) { showToast('Error logging in'); }
+    }
+
+    async function register() {
+      const fn = document.getElementById('regFirstName').value;
+      const ln = document.getElementById('regLastName').value;
+      const em = document.getElementById('regEmail').value;
+      const pa = document.getElementById('regPassword').value;
+      try {
+        const res = await fetch(`${API}/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ first_name: fn, last_name: ln, email: em, password: pa })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentPersonId = data.personId;
+          localStorage.setItem('personId', currentPersonId);
+          checkAuth();
+          showToast('Registered successfully');
+        } else {
+          showToast(data.message || 'Registration failed');
+        }
+      } catch (e) { showToast('Error registering'); }
+    }
+
+    function logout() {
+      currentPersonId = null;
+      localStorage.removeItem('personId');
+      checkAuth();
+    }
+
+    // App Navigation
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+      document.getElementById(`nav-${id}`).classList.add('active');
+
+      if (id === 'products') loadProducts();
+      if (id === 'cart') loadCart();
+      if (id === 'orders') loadOrders();
+    }
+
+    async function loadApp() {
+      await loadProducts();
+      await updateCartCount();
+    }
+
+    // Products
+    async function loadProducts() {
+      const grid = document.getElementById('productsGrid');
+      try {
+        const res = await fetch(`${API}/products`);
+        const data = await res.json();
+        if (!data.success) throw new Error();
+        allProducts = data.data;
+
+        // Find active category
+        const activeBtn = document.querySelector('.cat-btn.active');
+        const cat = activeBtn ? activeBtn.textContent.toLowerCase() : 'all';
+        renderProducts(cat);
+      } catch (e) {
+        grid.innerHTML = '<div class="empty">Failed to load products</div>';
+      }
+    }
+
+    function filterCategory(cat, btnElement) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      renderProducts(cat);
+    }
+
+    function renderProducts(category) {
+      const grid = document.getElementById('productsGrid');
+      let filtered = allProducts;
+      if (category !== 'all') {
+        filtered = allProducts.filter(p => (p.type || 'general').toLowerCase() === category);
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty" style="grid-column: 1/-1">No products found in this category</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const imgHtml = p.image_url
+          ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.src=''; this.parentElement.innerHTML='No Image'">`
+          : 'No Image';
+
+        return `
+          <div class="card">
+            <div class="card-img">${imgHtml}</div>
+            <div class="card-body">
+              <div class="card-title">${p.name}</div>
+              <div class="card-desc">${p.description || 'No description available'}</div>
+              <div class="card-footer">
+                <span class="price">$${Number(p.price).toFixed(2)}</span>
+                <span style="font-size:0.8rem; color:#6b7280;">Stock: ${p.stock_quantity}</span>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:1rem;">
+                <input id="qty-${p.product_id}" type="number" class="qty-input" min="1" value="1" ${p.stock_quantity <= 0 ? 'disabled' : ''}>
+                <button class="btn-secondary" style="flex:1;" onclick="addToCart(${p.product_id})" ${p.stock_quantity <= 0 ? 'disabled' : ''}>${p.stock_quantity <= 0 ? 'Out of Stock' : 'Add to Cart'}</button>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:0.5rem;">
+                <button class="btn-nav" style="flex:1; background:rgba(0,0,0,0.05); color:var(--text-dark); font-size:0.85rem; padding:0.5rem; border-radius:var(--radius-md);" onclick="openEditModal(${p.product_id})">Edit</button>
+                <button class="btn-danger" style="flex:1; font-size:0.85rem; padding:0.5rem; border-radius:var(--radius-md);" onclick="deleteProduct(${p.product_id})">Delete</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addProduct() {
+      const payload = {
+        name: document.getElementById('addName').value,
+        description: document.getElementById('addDesc').value,
+        price: parseFloat(document.getElementById('addPrice').value),
+        stock_quantity: parseInt(document.getElementById('addStock').value, 10),
+        type: document.getElementById('addType').value,
+        image_url: document.getElementById('addImage').value || null
+      };
+
+      if (!payload.name || !payload.price || isNaN(payload.stock_quantity)) {
+        showToast('Please fill required fields (Name, Price, Stock)');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/products`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Product added successfully!');
+          // Clear form
+          document.getElementById('addName').value = '';
+          document.getElementById('addDesc').value = '';
+          document.getElementById('addPrice').value = '';
+          document.getElementById('addStock').value = '';
+          document.getElementById('addImage').value = '';
+
+          showSection('products');
+        } else {
+          showToast(data.message || 'Failed to add product');
+        }
+      } catch (e) {
+        showToast('Error adding product');
+      }
+    }
+
+    function openEditModal(id) {
+      const p = allProducts.find(x => x.product_id === id);
+      if (!p) return;
+      document.getElementById('editId').value = p.product_id;
+      document.getElementById('editName').value = p.name;
+      document.getElementById('editDesc').value = p.description || '';
+      document.getElementById('editPrice').value = p.price;
+      document.getElementById('editStock').value = p.stock_quantity;
+      document.getElementById('editType').value = (p.type || 'general').toLowerCase();
+      document.getElementById('editImage').value = p.image_url || '';
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function saveEdit() {
+      const id = document.getElementById('editId').value;
+      const payload = {
+        name: document.getElementById('editName').value,
+        description: document.getElementById('editDesc').value,
+        price: parseFloat(document.getElementById('editPrice').value),
+        stock_quantity: parseInt(document.getElementById('editStock').value, 10),
+        type: document.getElementById('editType').value,
+        image_url: document.getElementById('editImage').value || null
+      };
+
+      if (!payload.name || !payload.price || isNaN(payload.stock_quantity)) {
+        showToast('Please fill required fields (Name, Price, Stock)');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/products/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Product updated successfully!');
+          closeEditModal();
+          await loadProducts();
+        } else {
+          showToast(data.message || 'Failed to update product');
+        }
+      } catch (e) { showToast('Error updating product'); }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Are you sure you want to delete this product?')) return;
+      try {
+        const res = await fetch(`${API}/products/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Product deleted');
+          await loadProducts();
+        } else {
+          showToast('Failed to delete product');
+        }
+      } catch (e) { showToast('Error deleting product'); }
+    }
+
+    // Cart & Orders (mostly unchanged logic, just styling tweaks)
+    async function addToCart(productId) {
+      try {
+        const qty = parseInt(document.getElementById(`qty-${productId}`).value, 10) || 1;
+        const res = await fetch(`${API}/cart/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ personId: currentPersonId, productId, quantity: qty })
+        });
+        const data = await res.json();
+        if (data.success) {
+          await updateCartCount();
+          showToast('Added to cart');
+        } else {
+          showToast(data.message);
+        }
+      } catch (e) { showToast('Error'); }
+    }
+
+    async function updateCartCount() {
+      try {
+        const res = await fetch(`${API}/cart/${currentPersonId}`);
+        const data = await res.json();
+        const count = data.success && data.data && data.data.items ? data.data.items.length : 0;
+        document.getElementById('cartCount').textContent = count;
+      } catch (_) { }
+    }
+
+    async function loadCart() {
+      const view = document.getElementById('cartView');
+      try {
+        const res = await fetch(`${API}/cart/${currentPersonId}`);
+        const data = await res.json();
+        if (!data.success || !data.data || !data.data.items || data.data.items.length === 0) {
+          view.innerHTML = '<div class="empty">Your cart is empty</div>';
+          return;
+        }
+
+        const rows = data.data.items.map(i => `
+          <tr>
+            <td><strong>${i.product_name || i.name}</strong></td>
+            <td>$${Number(i.price).toFixed(2)}</td>
+            <td>${i.quantity}</td>
+            <td><strong>$${Number(i.subtotal).toFixed(2)}</strong></td>
+            <td><button class="btn-danger" style="padding:0.25rem 0.5rem;font-size:0.875rem;" onclick="removeItem(${i.id})">Remove</button></td>
+          </tr>
+        `).join('');
+
+        view.innerHTML = `
+          <table>
+            <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>Action</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div style="text-align:right; margin-top:1.5rem; font-size:1.5rem; font-weight:700;">
+            Total: <span style="color:var(--primary)">$${Number(data.data.total).toFixed(2)}</span>
+          </div>
+          <div style="text-align:right; margin-top:1rem;">
+            <button class="btn-primary" style="width:auto; padding:0.75rem 2rem;" onclick="checkout()">Checkout Now</button>
+          </div>
+        `;
+      } catch (e) { view.innerHTML = '<div class="empty">Failed to load cart</div>'; }
+    }
+
+    async function removeItem(id) {
+      await fetch(`${API}/cart/item/${id}`, { method: 'DELETE' });
+      await loadCart();
+      await updateCartCount();
+    }
+
+    async function checkout() {
+      try {
+        const res = await fetch(`${API}/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ personId: currentPersonId, payment_method: 'cash' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Order placed successfully!');
+          await updateCartCount();
+          showSection('orders');
+        } else {
+          showToast('Checkout failed');
+        }
+      } catch (_) { showToast('Error during checkout'); }
+    }
+
+    async function loadOrders() {
+      const view = document.getElementById('ordersView');
+      try {
+        const res = await fetch(`${API}/orders/${currentPersonId}`);
+        const data = await res.json();
+        if (!data.success || !data.data || data.data.length === 0) {
+          view.innerHTML = '<div class="empty">No orders found</div>';
+          return;
+        }
+
+        const rows = data.data.map(o => `
+          <tr>
+            <td>#${o.order_id}</td>
+            <td>${new Date(o.created_at).toLocaleDateString()}</td>
+            <td><span style="background:var(--bg-color);padding:0.25rem 0.5rem;border-radius:4px;font-size:0.875rem;">${o.status.toUpperCase()}</span></td>
+            <td><strong>$${Number(o.total_amount).toFixed(2)}</strong></td>
+          </tr>
+        `).join('');
+
+        view.innerHTML = `
+          <table>
+            <thead><tr><th>Order ID</th><th>Date</th><th>Status</th><th>Total</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      } catch (_) { view.innerHTML = '<div class="empty">Failed to load orders</div>'; }
+    }
+
+    window.addEventListener('load', async () => {
+      API = await probeApi();
+      checkAuth();
+    });
+  </script>
 </body>
+
 </html>

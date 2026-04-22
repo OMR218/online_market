@@ -20,11 +20,14 @@ Get your e-commerce platform running in 5 minutes!
 1. Go to http://localhost/phpmyadmin
 2. Click "New" or create database "ecommerce"
 3. Select it, click "Import"
-4. Choose: database/schema.sql
+4. Choose: database/xampp_full_import.sql
 5. Click "Go"
 
+# If you import only schema.sql, the backend will now auto-seed sample products
+# on first start when the product table is empty.
+
 # Option B: Command Line
-mysql -u root < database/schema.sql
+mysql -u root < database/xampp_full_import.sql
 ```
 
 ### 3️⃣ Install Backend (1 minute)
@@ -60,7 +63,7 @@ curl http://localhost:3000/api/products
 ```
 
 ### Test Frontend:
-1. ✅ Products page loads with 5 items
+1. ✅ Products page loads with sample items from the seeded catalog
 2. ✅ Add item to cart
 3. ✅ Cart count updates
 4. ✅ Can view cart
@@ -99,12 +102,9 @@ curl http://localhost:3000/api/products
 
 ## 📊 Database Sample Data
 
-### Products (5 items):
-- Laptop: $1,200.00 (10 stock)
-- Mouse: $25.99 (50 stock)
-- Keyboard: $75.00 (30 stock)
-- Monitor: $350.00 (15 stock)
-- USB Cable: $12.99 (100 stock)
+### Products:
+- The backend seeds a starter catalog automatically if the `product` table is empty.
+- You should see laptops, accessories, food, and clothing items after the first backend start.
 
 ### Customers (3 items):
 - Ahmed Hassan (ahmed@example.com)

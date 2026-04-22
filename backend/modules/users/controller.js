@@ -1,7 +1,7 @@
 // Users Controller
 // Handles user/customer management with the new advanced schema
 
-const pool = require('../config/database');
+const pool = require('../../config/database');
 
 // Get all customers
 async function getAllCustomers(req, res) {
@@ -76,6 +76,8 @@ async function getCustomerById(req, res) {
                 a.city,
                 a.postal_code,
                 a.country,
+                wa.office_number,
+                wa.company_name,
                 CASE 
                     WHEN ha.address_id IS NOT NULL THEN 'home'
                     WHEN wa.address_id IS NOT NULL THEN 'work'
@@ -108,7 +110,22 @@ async function getCustomerById(req, res) {
 // Create new customer
 async function createCustomer(req, res) {
     try {
-        const { first_name, second_name, last_name, email, password, phone, address, city, postal_code, country } = req.body;
+        const {
+            first_name,
+            second_name,
+            last_name,
+            email,
+            password,
+            phone,
+            address,
+            street,
+            city,
+            postal_code,
+            country,
+            address_type,
+            office_number,
+            company_name
+        } = req.body;
         
         if (!first_name || !last_name || !email) {
             return res.status(400).json({
@@ -142,17 +159,25 @@ async function createCustomer(req, res) {
             }
             
             // Insert address if provided
-            if (address && city && country) {
+            const streetValue = street || address;
+            if (streetValue && city && country) {
                 const [addressResult] = await connection.query(
                     'INSERT INTO address (person_id, street, city, postal_code, country) VALUES (?, ?, ?, ?, ?)',
-                    [personId, address, city, postal_code || null, country]
+                    [personId, streetValue, city, postal_code || null, country]
                 );
-                
-                // Add as home address
-                await connection.query(
-                    'INSERT INTO home_address (address_id) VALUES (?)',
-                    [addressResult.insertId]
-                );
+
+                const normalizedAddressType = (address_type || 'home').toLowerCase();
+                if (normalizedAddressType === 'work') {
+                    await connection.query(
+                        'INSERT INTO work_address (address_id, office_number, company_name) VALUES (?, ?, ?)',
+                        [addressResult.insertId, office_number || null, company_name || null]
+                    );
+                } else {
+                    await connection.query(
+                        'INSERT INTO home_address (address_id) VALUES (?)',
+                        [addressResult.insertId]
+                    );
+                }
             }
             
             // Create cart for customer
@@ -181,7 +206,21 @@ async function createCustomer(req, res) {
 async function updateCustomer(req, res) {
     try {
         const { personId } = req.params;
-        const { first_name, second_name, last_name, email, phone } = req.body;
+        const {
+            first_name,
+            second_name,
+            last_name,
+            email,
+            phone,
+            address,
+            street,
+            city,
+            postal_code,
+            country,
+            address_type,
+            office_number,
+            company_name
+        } = req.body;
         
         const connection = await pool.getConnection();
         
@@ -230,6 +269,28 @@ async function updateCustomer(req, res) {
                     );
                 }
             }
+
+            // Insert new address record when address fields are provided
+            const streetValue = street || address;
+            if (streetValue && city && country) {
+                const [addressResult] = await connection.query(
+                    'INSERT INTO address (person_id, street, city, postal_code, country) VALUES (?, ?, ?, ?, ?)',
+                    [personId, streetValue, city, postal_code || null, country]
+                );
+
+                const normalizedAddressType = (address_type || 'home').toLowerCase();
+                if (normalizedAddressType === 'work') {
+                    await connection.query(
+                        'INSERT INTO work_address (address_id, office_number, company_name) VALUES (?, ?, ?)',
+                        [addressResult.insertId, office_number || null, company_name || null]
+                    );
+                } else {
+                    await connection.query(
+                        'INSERT INTO home_address (address_id) VALUES (?)',
+                        [addressResult.insertId]
+                    );
+                }
+            }
             
             connection.release();
             
@@ -249,9 +310,51 @@ async function updateCustomer(req, res) {
     }
 }
 
+// Login customer
+async function loginCustomer(req, res) {
+    try {
+        const { email, password } = req.body;
+        
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: email, password'
+            });
+        }
+        
+        const connection = await pool.getConnection();
+        
+        const [customer] = await connection.query(
+            'SELECT person_id FROM customer WHERE email = ? AND password = ?',
+            [email, password]
+        );
+        
+        connection.release();
+        
+        if (customer.length === 0) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            personId: customer[0].person_id
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
 module.exports = {
     getAllCustomers,
     getCustomerById,
     createCustomer,
-    updateCustomer
+    updateCustomer,
+    loginCustomer
 };

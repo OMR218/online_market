@@ -27,6 +27,15 @@ A sophisticated, production-ready e-commerce solution built with **Node.js**, **
 ```
 ecommerce-project/
 │
+├── scripts/
+│   ├── db/                     # Database maintenance scripts
+│   ├── data/                   # Data seed/fix scripts
+│   └── debug/                  # Debug helpers for DB checks
+│
+├── tests/
+│   ├── api/                    # Automated API tests (node --test)
+│   └── manual/                 # Manual API test scripts
+│
 ├── backend/
 │   ├── config/
 │   │   └── database.js          # Database connection pool
