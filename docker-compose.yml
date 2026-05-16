@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: online_market_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./database/postgres_init.sql:/docker-entrypoint-initdb.d/1-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  backend:
+    build:
+      context: ./backend
+    container_name: online_market_backend
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: ecommerce
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: online_market_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8081:80"
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    container_name: online_market_tests
+    environment:
+      API_BASE: http://backend:3000/api
+    depends_on:
+      backend:
+        condition: service_healthy
+    profiles:
+      - test
+    command: ["npm", "run", "test:api"]
+
+volumes:
+  pg_data:

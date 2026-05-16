@@ -4,51 +4,37 @@ Get your e-commerce platform running in 5 minutes!
 
 ---
 
-## ⚡ 5-Minute Setup
+## ⚡ 5-Minute Setup (Docker)
 
-### 1️⃣ Start MySQL (1 minute)
+### 1️⃣ Start all services
 ```bash
-# Windows (XAMPP):
-- Open XAMPP Control Panel
-- Click "Start" for MySQL (and Apache if needed)
-- phpMyAdmin should open at http://localhost/phpmyadmin
+docker compose up --build
 ```
 
-### 2️⃣ Import Database (1 minute)
+This starts:
+- PostgreSQL (database)
+- Backend API on http://localhost:3000
+- Frontend on http://localhost:8081
+
+### 2️⃣ Open the app
+```text
+http://localhost:8081
+```
+
+### 3️⃣ Verify backend
 ```bash
-# Option A: phpMyAdmin
-1. Go to http://localhost/phpmyadmin
-2. Click "New" or create database "ecommerce"
-3. Select it, click "Import"
-4. Choose: database/xampp_full_import.sql
-5. Click "Go"
-
-# If you import only schema.sql, the backend will now auto-seed sample products
-# on first start when the product table is empty.
-
-# Option B: Command Line
-mysql -u root < database/xampp_full_import.sql
+curl http://localhost:3000/api/health
+curl http://localhost:3000/api/products
 ```
 
-### 3️⃣ Install Backend (1 minute)
+### 4️⃣ Run automated tests in Docker
 ```bash
-cd backend
-npm install
+docker compose --profile test run --rm tests
 ```
 
-### 4️⃣ Start Backend (1 minute)
+### 5️⃣ Stop everything
 ```bash
-npm start
-```
-
-You should see:
-```
-✅ Server is running on http://localhost:3000
-```
-
-### 5️⃣ Open Frontend (Instant!)
-```
-Open in browser: file:///path/to/online_market/frontend/index.html
+docker compose down
 ```
 
 ---

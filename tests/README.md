@@ -21,3 +21,11 @@ Note: backend server must be running at http://localhost:3000 by default.
 You can override API URL with API_BASE, for example:
 
 API_BASE=http://localhost:3001/api npm run test:api
+
+## Run automated tests with Docker Compose
+
+From repository root:
+
+docker compose --profile test run --rm tests
+
+This command starts the tests container and runs API tests against the backend service inside Docker.
